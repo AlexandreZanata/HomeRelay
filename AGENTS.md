@@ -1,118 +1,125 @@
-# AGENTS.md — PC Antigo Servidor de Automação
+# AGENTS.md — HomeRelay
 
-> Ponto de entrada para agentes de IA (Cursor, Claude Code, Codex etc.) neste repositório.
+> **Read this first** in every Cursor session on the home PC or dev machine.
 
-**Idioma da documentação do projeto:** Português (docs/, README, casos de uso).
-**Idioma do código:** Inglês — nomes de variáveis, funções, commits e comentários.
-
----
-
-## O que é este repositório
-
-| É | Não é |
-|---|-------|
-| Projeto **100% open source** (MIT) — clone e instale em qualquer PC | SaaS, serviço fechado ou vendor lock-in |
-| Documentação + código de automação para PC doméstico remoto | Template genérico de Agent Harness |
-| Infraestrutura WireGuard + SSH + PM2 + bots | App pronto para deploy sem configuração |
-| Reproduzível em **outro computador** a qualquer momento | Amarrado a um hardware ou VPS específicos |
-
-**Objetivo:** transformar um PC de casa (sem IP público, Wi-Fi) em servidor de automação 24/7 acessível via VPS.
-
-**Instalar em outra máquina:** [docs/INSTALACAO-EM-OUTRO-PC.md](docs/INSTALACAO-EM-OUTRO-PC.md)
+**Language:** 100% English — code, docs, comments, commits, and all agent output.
 
 ---
 
-## Leia antes de implementar
+## What this repository is
 
-1. [README.md](README.md) — visão geral
-2. [docs/PLANO-IMPLEMENTACAO.md](docs/PLANO-IMPLEMENTACAO.md) — arquitetura e etapas
-3. [docs/GLOSSARY.md](docs/GLOSSARY.md) — termos de domínio (use exatamente como definido)
-4. [docs/use-cases/](docs/use-cases/) — fluxos operacionais
+| Is | Is not |
+|----|--------|
+| Open-source home automation server (MIT) | Closed SaaS or vendor lock-in |
+| Agent-driven setup via `docs/AGENT-RUNBOOK.md` | A finished deploy-without-configuration app |
+| WireGuard + SSH + PM2 + bots on a home PC | Bound to one machine or VPS |
 
-Quando regras do harness conflitarem com código existente, **as regras prevalecem** — salvo override explícito do usuário.
+**Goal:** home PC (no public IP, Wi-Fi) → 24/7 automation server reachable via VPS.
+
+**You are likely on the home PC right now.** Execute the runbook locally unless the phase explicitly targets the VPS.
 
 ---
 
-## Agent Harness (regras de desenvolvimento)
+## Mandatory read order
+
+1. [docs/AGENT-RUNBOOK.md](docs/AGENT-RUNBOOK.md) — **execute phase by phase**
+2. [docs/DEPLOYMENT-CHECKLIST.md](docs/DEPLOYMENT-CHECKLIST.md) — mark items as you complete them
+3. [docs/GLOSSARY.md](docs/GLOSSARY.md) — use terms exactly as defined
+4. [docs/IMPLEMENTATION-PLAN.md](docs/IMPLEMENTATION-PLAN.md) — architecture reference
+
+When harness rules conflict with existing code, **rules prevail** unless the user explicitly overrides.
+
+---
+
+## Agent protocol (home PC setup)
+
+### Before any command
+
+1. Confirm you are on the **home PC** (`uname -a`, hostname).
+2. Read `.env` if it exists — never print secrets in chat.
+3. State which **runbook phase** you are executing.
+
+### Ask the user if missing (never assume)
+
+| Variable | Example | Used for |
+|----------|---------|----------|
+| `VPS_PUBLIC_IP` | `203.0.113.10` | WireGuard endpoint, SSH ProxyJump |
+| `VPS_USER` | `deploy` | VPS SSH |
+| `HOME_PC_USER` | `homelab` | Local sudo user |
+| `HOME_PC_VPN_IP` | `10.8.0.2` | WireGuard address on home PC |
+| `VPS_VPN_IP` | `10.8.0.1` | WireGuard address on VPS |
+| `WIFI_SSID` | `HomeNetwork` | Only if Wi-Fi not already connected |
+
+### Execution rules
+
+1. **One phase per session** when possible — verify before moving on.
+2. Run commands yourself — do not only paste instructions.
+3. **Never commit** `.env`, `*.key`, WireGuard private keys, WhatsApp session files.
+4. Use scripts in `src/infra/` — do not duplicate logic in chat.
+5. After each phase, run the **verification commands** from the runbook.
+6. Update [DEPLOYMENT-CHECKLIST.md](docs/DEPLOYMENT-CHECKLIST.md) when user confirms a phase is done.
+
+### Security (non-negotiable)
+
+- Home PC SSH **never** exposed to the public internet — WireGuard only.
+- Store secrets in `.env` (chmod 600) or `/etc/wireguard/` (root only).
+- Dedicated WhatsApp number; respect ToS and opt-in.
+
+---
+
+## Harness (development rules)
 
 ```bash
-pip install -r .agent-harness/harness/requirements.txt   # uma vez por máquina
+pip install -r .agent-harness/harness/requirements.txt
 ./agent-harness/rules-path.sh
+./agent-harness/resolve-rules.sh security ssh wireguard   # infra tasks
 ```
 
-| Contexto | `rules_dir` |
-|----------|-------------|
-| Este projeto | `agent-rules/` |
-
-### Sempre carregar (base)
-
-1. `agent-rules/AGENT-CORE-PRINCIPLES.md`
-2. `agent-rules/00-core/size-and-complexity-limits.md`
-3. `agent-rules/04-testing/contract-first-tests.md`
-4. `agent-rules/09-ai-agent-specific/token-economy.md`
-5. `agent-rules/09-ai-agent-specific/anti-hallucination.md`
-
-Cursor aplica automaticamente `.cursor/rules/*.mdc`.
-
-### Carregar por tarefa (2–6 arquivos)
-
-```bash
-./agent-harness/resolve-rules.sh <palavras-chave da tarefa>
-```
-
-| Tarefa | Exemplo |
-|--------|---------|
-| Script WhatsApp | `./agent-harness/resolve-rules.sh whatsapp bot node pm2` |
-| Infra WireGuard/SSH | `./agent-harness/resolve-rules.sh security ssh network` |
-| Agendador / cron | `./agent-harness/resolve-rules.sh api schedule cron` |
-| Testes | `./agent-harness/resolve-rules.sh test contract unit` |
+Cursor applies `.cursor/rules/*.mdc` automatically.
 
 ---
 
-## Protocolo do agente
-
-1. Ler documentação do projeto (`docs/`) antes de codificar.
-2. Manter o projeto **reproduzível em qualquer PC** — nunca hardcodar IPs, chaves ou paths de máquina específica.
-3. Usar termos do [Glossário](docs/GLOSSARY.md) — não inventar nomenclatura.
-3. **Perguntar** se requisitos de negócio estiverem em branco — nunca assumir.
-4. Menor diff possível; uma mudança lógica por commit.
-5. **Nunca** commitar chaves privadas, tokens ou `.env`.
-6. Verificar após cada edição — não afirmar que testes passaram sem executá-los.
-7. Seguir [Checklist de implantação](docs/CHECKLIST-IMPLANTACAO.md) ao implementar infra.
-
----
-
-## Estrutura prevista do repositório
+## Repository layout
 
 ```
-docs/                  # Documentação (este é o foco atual)
-src/                   # Scripts de automação (futuro)
-  bots/                # WhatsApp, agendador
-  infra/               # Watchdog, helpers
-.env.example           # Variáveis sem segredos (futuro)
-agent-rules/           # Regras do harness (symlink)
-agent-harness/         # Scripts resolve-rules (symlink)
-.cursor/rules/         # Regras Cursor always-on
+docs/
+  AGENT-RUNBOOK.md       # ← execute this on the home PC
+  HOME-PC-SETUP.md
+  VPS-SETUP.md
+  IMPLEMENTATION-PLAN.md
+  DEPLOYMENT-CHECKLIST.md
+src/infra/               # setup scripts (safe to run)
+  setup-home-pc.sh
+  watchdog.sh
+  install-watchdog.sh
+.env.example             # template — copy to .env
+agent-rules/             # harness rules (symlink)
+.cursor/rules/           # Cursor always-on rules
 ```
 
 ---
 
-## Segurança — regras invioláveis
+## Phase overview (summary)
 
-- SSH do PC **nunca** exposto à internet — só via WireGuard.
-- Credenciais WhatsApp e APIs em `.env` (gitignored).
-- Número WhatsApp dedicado; respeitar ToS e opt-in.
-- `ufw` + `fail2ban` conforme [Plano Etapa 7](docs/PLANO-IMPLEMENTACAO.md#etapa-7--segurança).
+| Phase | Where | Doc |
+|-------|-------|-----|
+| 1 | Home PC | [HOME-PC-SETUP.md](docs/HOME-PC-SETUP.md) — SSH, sleep, Wi-Fi |
+| 2 | VPS | [VPS-SETUP.md](docs/VPS-SETUP.md) — ufw, WireGuard server |
+| 3 | Both | WireGuard tunnel |
+| 4 | Admin machine + VPS | SSH ProxyJump |
+| 5–6 | Home PC | Node.js, PM2, bots |
+| 7 | Both | Security hardening |
+| 8 | Home PC | Wi-Fi watchdog |
+
+Full commands: [AGENT-RUNBOOK.md](docs/AGENT-RUNBOOK.md).
 
 ---
 
-## Referências
+## References
 
-| Documento | Propósito |
-|-----------|-----------|
-| [docs/PLANO-IMPLEMENTACAO.md](docs/PLANO-IMPLEMENTACAO.md) | Guia técnico completo |
-| [docs/CHECKLIST-IMPLANTACAO.md](docs/CHECKLIST-IMPLANTACAO.md) | Validação fase a fase |
-| [agent-rules/AGENT-CORE-PRINCIPLES.md](agent-rules/AGENT-CORE-PRINCIPLES.md) | Contrato de arquitetura |
-| [docs/INSTALACAO-EM-OUTRO-PC.md](docs/INSTALACAO-EM-OUTRO-PC.md) | Clone e instalação em outra máquina |
-| [LICENSE](LICENSE) | MIT — open source |
-| [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | Licenças de terceiros |
+| Document | Purpose |
+|----------|---------|
+| [docs/AGENT-RUNBOOK.md](docs/AGENT-RUNBOOK.md) | Step-by-step agent execution |
+| [docs/DEPLOYMENT-CHECKLIST.md](docs/DEPLOYMENT-CHECKLIST.md) | Validation checklist |
+| [LICENSE](LICENSE) | MIT |
+| [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | Third-party licenses |

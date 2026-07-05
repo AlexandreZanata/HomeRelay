@@ -1,0 +1,16 @@
+---
+description: HomeRelay project — agent executes AGENT-RUNBOOK on home PC
+alwaysApply: true
+---
+
+# HomeRelay Agent Rules
+
+1. **Read first:** `AGENTS.md` and `docs/AGENT-RUNBOOK.md`.
+2. **Language:** 100% English in all output, code, commits, and doc edits.
+3. **Execute locally** on the home PC — run commands, do not only paste instructions.
+4. **One runbook phase at a time** — verify before next phase.
+5. **Ask user** for blank `.env` values (VPS IP, usernames) — never assume.
+6. **Never commit** `.env`, `*.key`, WireGuard private keys, WhatsApp sessions.
+7. Use `src/infra/*.sh` scripts — do not duplicate setup logic.
+8. Home PC SSH must **never** be exposed to the public internet.
+9. Update `docs/DEPLOYMENT-CHECKLIST.md` when user confirms phase completion.

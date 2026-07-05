@@ -7,6 +7,10 @@
 .env.*
 !.env.example
 
+# WireGuard and local config
+*.key
+config/local/
+
 # OS and IDE (non-Cursor)
 .DS_Store
 .idea/

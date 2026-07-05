@@ -1,85 +1,71 @@
-# PC Antigo como Servidor Remoto de Automação
+# HomeRelay
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Projeto 100% open source** — código, documentação e stack inteira são software livre (MIT). Qualquer pessoa pode clonar, instalar e operar em **qualquer computador**, sem licenças pagas, contas proprietárias ou vendor lock-in.
-
-Transformar um PC doméstico em uma máquina acessível remotamente (via VPS), sem IP público e sem cabo de rede, para rodar automações 24/7 — agendamento de posts, disparo de mensagens no WhatsApp e rotinas similares.
-
-> **Vai instalar em outro PC?** Siga [Instalação em outro computador](docs/INSTALACAO-EM-OUTRO-PC.md) — o repositório foi pensado para ser clonado e reproduzido em qualquer máquina.
-
-## O que este projeto faz
-
-Um PC de casa fica conectado à internet por Wi-Fi, atrás de CGNAT (sem IP público). Em vez de expor portas no roteador — o que não funciona nesse cenário — o PC **inicia** uma conexão permanente com uma VPS que possui IP fixo. A VPS age como hub: você acessa o PC de qualquer lugar via SSH, e os bots de automação rodam localmente no hardware de casa.
+**100% open source** — turn any home PC into a 24/7 remote automation server reachable via a VPS, with no public IP and no port forwarding.
 
 ```
-[Você — celular/notebook] ──SSH──► [VPS — IP público] ◄──WireGuard──► [PC de casa — Wi-Fi]
+[You — laptop/phone] ──SSH──► [VPS — public IP] ◄──WireGuard──► [Home PC — Wi-Fi]
 ```
 
-## Open source — o que isso garante
+## What this project does
 
-- **Código aberto:** repositório público no GitHub, licença MIT
-- **Stack livre:** WireGuard, OpenSSH, PM2, Node.js, Baileys — zero dependência proprietária obrigatória
-- **Reproduzível:** clone em outro PC e siga a documentação; cada instalação é independente
-- **Segredos locais:** chaves VPN, tokens e senhas ficam no computador (`.env`, arquivos locais) — **nunca** no git
-- **Único custo:** a VPS que você escolher (~€3–5/mês ou tier gratuito em alguns provedores)
+A home PC behind **CGNAT** (no real public IP) maintains an **outbound WireGuard tunnel** to a cheap VPS. The VPS is the entry point; you SSH into the home PC from anywhere. Automation bots (WhatsApp, scheduled posts) run locally on the home hardware.
 
-## Documentação
-
-| Documento | Conteúdo |
-|-----------|----------|
-| [**Instalação em outro PC**](docs/INSTALACAO-EM-OUTRO-PC.md) | **Clone, migração e segunda máquina** |
-| [Plano de implementação](docs/PLANO-IMPLEMENTACAO.md) | Guia completo, etapa a etapa |
-| [Checklist de implantação](docs/CHECKLIST-IMPLANTACAO.md) | Acompanhamento da instalação e testes |
-| [Glossário](docs/GLOSSARY.md) | Termos técnicos e de domínio |
-| [Casos de uso](docs/use-cases/) | Cenários operacionais do sistema |
-| [AGENTS.md](AGENTS.md) | Ponto de entrada para agentes de IA |
-
-## Stack principal
-
-| Componente | Função |
-|------------|--------|
-| Debian 12 / Ubuntu Server | SO do PC (sem interface gráfica) |
-| WireGuard | VPN privada PC ↔ VPS |
-| SSH + ProxyJump | Acesso remoto seguro |
-| PM2 / systemd | Bots sempre ativos e auto-restart |
-| Node.js (nvm) | Runtime das automações |
-| Baileys / n8n | WhatsApp e agendamento de posts |
-
-## Requisitos mínimos
-
-- 1 PC (pode ser antigo — 1 vCPU e 1–2 GB RAM bastam para os bots)
-- Wi-Fi doméstico estável
-- 1 VPS barata (Contabo, Hetzner, Oracle Free Tier, DigitalOcean etc.)
-- Pendrive para instalar Linux
-- Número de WhatsApp **dedicado** para automações
-
-## Início rápido
+## Quick start (home PC with Linux already installed)
 
 ```bash
-# Clonar (inclui submódulo do Agent Harness)
-git clone --recurse-submodules https://github.com/SEU_USUARIO/PC-ANTIGO-SERVIDOR.git
+git clone --recurse-submodules https://github.com/AlexandreZanata/PC-ANTIGO-SERVIDOR.git
 cd PC-ANTIGO-SERVIDOR
+cp .env.example .env   # fill in locally — never commit
 ```
 
-1. **Primeira instalação:** [Plano de implementação](docs/PLANO-IMPLEMENTACAO.md) — etapas 1–8
-2. **Outro computador / migração:** [Instalação em outro PC](docs/INSTALACAO-EM-OUTRO-PC.md)
-3. **Acompanhar progresso:** [Checklist](docs/CHECKLIST-IMPLANTACAO.md)
+**Open this repo in Cursor on the home PC**, then tell the agent:
 
-## Agent Harness
+> Follow `docs/AGENT-RUNBOOK.md` from Phase 1.
 
-Este repositório usa o [Agent Harness](https://github.com/AlexandreZanata/GoodPraticesForLLMSandAgents) para orientar agentes de IA durante o desenvolvimento. Regras em `agent-rules/` e `.cursor/rules/`.
+## Documentation
 
-## Avisos legais
+| Document | Purpose |
+|----------|---------|
+| [**AGENT-RUNBOOK**](docs/AGENT-RUNBOOK.md) | **Start here in Cursor** — phased setup for AI agents |
+| [HOME-PC-SETUP](docs/HOME-PC-SETUP.md) | Post-install steps on the home PC (Ubuntu 24.04) |
+| [VPS-SETUP](docs/VPS-SETUP.md) | VPS hub configuration |
+| [IMPLEMENTATION-PLAN](docs/IMPLEMENTATION-PLAN.md) | Full architecture and reference |
+| [DEPLOYMENT-CHECKLIST](docs/DEPLOYMENT-CHECKLIST.md) | Phase-by-phase validation |
+| [INSTALL-ON-ANOTHER-PC](docs/INSTALL-ON-ANOTHER-PC.md) | Clone, migrate, second machine |
+| [GLOSSARY](docs/GLOSSARY.md) | Domain terms |
+| [Use cases](docs/use-cases/) | Operational flows |
+| [AGENTS.md](AGENTS.md) | Agent entry point |
 
-- Envio de mensagens em massa no WhatsApp sem opt-in viola os Termos de Uso e pode resultar em banimento.
-- Este projeto usa ferramentas open-source; o único custo recorrente é a VPS.
-- A documentação é orientação técnica, não assessoria jurídica sobre dados ou marketing.
+## Stack
 
-## Licença
+| Component | Role |
+|-----------|------|
+| Ubuntu 24.04 LTS | Home PC OS (Desktop OK — hardened after install) |
+| WireGuard | Private VPN Home PC ↔ VPS |
+| SSH + ProxyJump | Secure remote access |
+| PM2 | Always-on bots with auto-restart |
+| Node.js (nvm) | Automation runtime |
+| Baileys / whatsapp-web.js / n8n | WhatsApp and post scheduling |
 
-[MIT](LICENSE) — use, modifique e redistribua livremente. Atribuições de terceiros em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+## Open source guarantees
 
-## Contribuir
+- **MIT license** — fork, modify, redistribute freely
+- **No vendor lock-in** — WireGuard, OpenSSH, PM2, Node.js
+- **Reproducible** — clone on any PC, follow the docs
+- **Secrets stay local** — `.env`, WireGuard keys, tokens never in git
+- **Only recurring cost** — your VPS (~€3–5/month or free tier)
 
-Issues e pull requests são bem-vindos. Este projeto existe para ser usado por qualquer pessoa com um PC antigo e uma VPS — mantenha documentação clara para quem instalar do zero em outra máquina.
+## For AI agents
+
+Read [AGENTS.md](AGENTS.md) first. Execute [docs/AGENT-RUNBOOK.md](docs/AGENT-RUNBOOK.md) phase by phase. Ask the user for missing values (VPS IP, usernames) — never assume or commit secrets.
+
+## Legal notes
+
+- Bulk WhatsApp without opt-in violates Meta ToS and may cause bans. Use a **dedicated number**.
+- Technical guidance only — not legal advice on data or marketing.
+
+## License
+
+[MIT](LICENSE) — third-party notices in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
