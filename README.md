@@ -37,6 +37,7 @@ cp .env.example .env   # fill in locally — never commit
 | [GLOSSARY](docs/GLOSSARY.md) | Domain terms |
 | [Use cases](docs/use-cases/) | Operational flows |
 | [ADMIN-CLIENT-SETUP](docs/ADMIN-CLIENT-SETUP.md) | Pop!_OS / laptop SSH + Cursor remote |
+| [**REMOTE-DESKTOP**](docs/REMOTE-DESKTOP.md) | **Full GUI** — one-click RDP via xfreerdp3 |
 
 ## Stack
 

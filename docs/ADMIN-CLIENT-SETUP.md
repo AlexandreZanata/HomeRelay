@@ -11,7 +11,7 @@ Replace placeholders with values from your `.env` (never commit real IPs or keys
 
 - WireGuard tunnel active (home PC `10.8.0.2` ↔ VPS `10.8.0.1`)
 - SSH on VPS reachable from the internet
-- Home PC user created (e.g. `zanata-servidor`)
+- Home PC user created (e.g. `your-linux-user`)
 
 ---
 
@@ -95,6 +95,7 @@ Host homerelay-desktop
     User <HOME_PC_USER>
     ProxyJump homerelay-vps
     IdentityFile ~/.ssh/id_ed25519
+    Compression no
     LocalForward 3389 127.0.0.1:3389
     ServerAliveInterval 60
 ```
@@ -135,33 +136,26 @@ rsync -avz homerelay:~/project/ ~/project/
 
 ---
 
-## Step 5 — Remote desktop (optional)
+## Step 5 — Remote desktop (full GUI)
 
-**On home PC** (Ubuntu Desktop):
+See **[REMOTE-DESKTOP.md](REMOTE-DESKTOP.md)** for the complete guide.
+
+**Quick path:**
 
 ```bash
-cd ~/Documents/HomeRelay   # or your clone path
+# Home PC (once)
 bash src/infra/setup-remote-desktop.sh
+bash src/infra/setup-server-awake.sh
+
+# Admin machine (once)
+bash src/client/install-launcher.sh
+homerelay-save-password
+
+# Daily use
+homerelay-gui
 ```
 
-**On admin machine (Pop!_OS):**
-
-```bash
-sudo apt update && sudo apt install -y remmina remmina-plugin-rdp
-
-# keep this terminal open (tunnel)
-ssh -N homerelay-desktop
-```
-
-Open **Remmina**:
-
-| Field | Value |
-|-------|--------|
-| Protocol | RDP |
-| Server | `localhost` |
-| Port | `3389` |
-| User | your Linux username |
-| Password | your Linux password |
+Uses **xfreerdp3** (not Remmina) — required for Ubuntu 24.04 GNOME RDP Graphics Pipeline.
 
 ---
 
@@ -178,28 +172,19 @@ You edit and run code **on the home PC** as if you were sitting there.
 
 ## Optional desktop shortcut (Pop!_OS)
 
-**One-click launcher (retro PC icon):**
+**One-click remote desktop (retro PC icon):**
 
 ```bash
-cd ~/Documents/HomeRelay   # or your clone path
+cd /path/to/PC-ANTIGO-SERVIDOR
 bash src/client/install-launcher.sh
+homerelay-save-password   # optional — one-click without password prompt
 ```
 
-Then open **HomeRelay** from the app menu or pin to the dock. It runs `ssh homerelay` in a terminal automatically.
+Pin **HomeRelay** from the app menu to the COSMIC dock. Runs `homerelay-gui` → SSH tunnel + xfreerdp3.
 
-Files installed to `~/.local/share/homerelay/` and `~/.local/share/applications/homerelay.desktop`.
+**SSH terminal only** (no GUI): `ssh homerelay` or `connect-homerelay.sh`.
 
-Manual `.desktop` (alternative):
-
-```ini
-[Desktop Entry]
-Name=HomeRelay SSH
-Comment=Remote access to home server
-Exec=gnome-terminal -- ssh homerelay
-Icon=network-server
-Type=Application
-Terminal=false
-```
+Files: `~/.local/share/homerelay/`, `~/.local/bin/homerelay-gui`, `homerelay-desktop.desktop`.
 
 ---
 

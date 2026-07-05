@@ -20,7 +20,8 @@
 | [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md) | Full architecture reference |
 | [DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md) | Validation checklist |
 | [INSTALL-ON-ANOTHER-PC.md](INSTALL-ON-ANOTHER-PC.md) | Clone, migrate, second PC |
-| [ADMIN-CLIENT-SETUP.md](ADMIN-CLIENT-SETUP.md) | Admin laptop: SSH, scp, Cursor Remote, RDP |
+| [ADMIN-CLIENT-SETUP.md](ADMIN-CLIENT-SETUP.md) | Admin laptop: SSH, scp, Cursor Remote |
+| [REMOTE-DESKTOP.md](REMOTE-DESKTOP.md) | Full GUI remote desktop (xfreerdp3) |
 
 ## Use cases
 

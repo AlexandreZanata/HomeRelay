@@ -72,6 +72,7 @@ Host homerelay-desktop
     User ${HOME_PC_USER}
     ProxyJump homerelay-vps
     IdentityFile ~/.ssh/id_ed25519
+    Compression no
     LocalForward 3389 127.0.0.1:3389
     ServerAliveInterval 60
 EOF

@@ -42,6 +42,16 @@ sudo systemctl enable --now ssh
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 ```
 
+### Keep awake with lid closed (24/7 server)
+
+```bash
+bash src/infra/setup-server-awake.sh
+```
+
+Configures: ignore lid switch, GNOME never-sleep, Wi-Fi power-save off. See [REMOTE-DESKTOP.md](REMOTE-DESKTOP.md).
+
+---
+
 ### Wi-Fi autoconnect on boot
 
 If not already connected:
