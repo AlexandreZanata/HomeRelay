@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=HomeRelay
+GenericName=Remote Home PC
+Comment=SSH to home server via VPS (WireGuard)
+Exec=INSTALL_DIR_PLACEHOLDER/connect-homerelay.sh
+Icon=INSTALL_DIR_PLACEHOLDER/homerelay-pc-icon.png
+Terminal=false
+Categories=Network;RemoteAccess;
+StartupNotify=true
+Keywords=ssh;remote;homerelay;server;

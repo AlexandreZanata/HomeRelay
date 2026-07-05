@@ -36,7 +36,7 @@ cp .env.example .env   # fill in locally — never commit
 | [INSTALL-ON-ANOTHER-PC](docs/INSTALL-ON-ANOTHER-PC.md) | Clone, migrate, second machine |
 | [GLOSSARY](docs/GLOSSARY.md) | Domain terms |
 | [Use cases](docs/use-cases/) | Operational flows |
-| [AGENTS.md](AGENTS.md) | Agent entry point |
+| [ADMIN-CLIENT-SETUP](docs/ADMIN-CLIENT-SETUP.md) | Pop!_OS / laptop SSH + Cursor remote |
 
 ## Stack
 
